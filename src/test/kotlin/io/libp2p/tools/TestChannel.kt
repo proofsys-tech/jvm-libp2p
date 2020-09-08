@@ -3,6 +3,7 @@ package io.libp2p.tools
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import io.libp2p.etc.CONNECTION
 import io.libp2p.etc.types.lazyVar
+import io.libp2p.etc.types.toVoidCompletableFuture
 import io.libp2p.etc.util.netty.nettyInitializer
 import io.libp2p.transport.implementation.ConnectionOverNetty
 import io.netty.channel.ChannelHandler
@@ -57,9 +58,10 @@ class TestChannel(
 
     @Synchronized
     override fun handleOutboundMessage(msg: Any?) {
-        super.handleOutboundMessage(msg)
         if (link != null) {
             send(msg!!)
+        } else {
+            super.handleOutboundMessage(msg)
         }
     }
 
@@ -91,9 +93,11 @@ class TestChannel(
 
     class TestConnection(val ch1: TestChannel, val ch2: TestChannel) {
         fun getMessageCount() = ch1.sentMsgCount.get() + ch2.sentMsgCount.get()
-        fun disconnect() {
-            ch1.close()
-            ch2.close()
+        fun disconnect(): CompletableFuture<Unit> {
+            return CompletableFuture.allOf(
+                ch1.close().toVoidCompletableFuture(),
+                ch2.close().toVoidCompletableFuture()
+            ).thenApply { Unit }
         }
     }
 }

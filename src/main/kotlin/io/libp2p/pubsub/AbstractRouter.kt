@@ -50,6 +50,7 @@ abstract class AbstractRouter : P2PServiceSemiDuplex(), PubsubRouter, PubsubRout
     val pendingRpcParts = linkedMapOf<PeerHandler, MutableList<Rpc.RPC>>()
     private var debugHandler: ChannelHandler? = null
     private val pendingMessagePromises = MultiSet<PeerHandler, CompletableFuture<Unit>>()
+    var serialize = true
 
     protected fun getMessageId(msg: Rpc.Message): MessageId = messageIdGenerator(msg)
 
@@ -124,10 +125,12 @@ abstract class AbstractRouter : P2PServiceSemiDuplex(), PubsubRouter, PubsubRout
 
     override fun initChannel(streamHandler: StreamHandler) {
         with(streamHandler.stream) {
-            pushHandler(ProtobufVarint32FrameDecoder())
-            pushHandler(ProtobufVarint32LengthFieldPrepender())
-            pushHandler(ProtobufDecoder(Rpc.RPC.getDefaultInstance()))
-            pushHandler(ProtobufEncoder())
+            if (serialize) {
+                pushHandler(ProtobufVarint32FrameDecoder())
+                pushHandler(ProtobufVarint32LengthFieldPrepender())
+                pushHandler(ProtobufDecoder(Rpc.RPC.getDefaultInstance()))
+                pushHandler(ProtobufEncoder())
+            }
             debugHandler?.also { pushHandler(it) }
             pushHandler(streamHandler)
         }

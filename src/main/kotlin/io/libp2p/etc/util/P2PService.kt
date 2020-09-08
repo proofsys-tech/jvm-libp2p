@@ -243,7 +243,7 @@ abstract class P2PService {
      */
     fun <C> submitAsyncOnEventThread(run: () -> CompletableFuture<C>): CompletableFuture<C> = executor.submitAsync(run)
 
-    companion object {
+    protected companion object {
         private val threadFactory = ThreadFactoryBuilder().setDaemon(true).setNameFormat("P2PService-event-thread-%d").build()
         @JvmStatic
         val logger = LogManager.getLogger(AbstractRouter::class.java)

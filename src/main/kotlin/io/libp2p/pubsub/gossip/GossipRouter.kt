@@ -81,6 +81,9 @@ open class GossipRouter @JvmOverloads constructor(
         return curTimeMillis() < expire - (params.pruneBackoff + params.graftFloodThreshold).toMillis()
     }
 
+    var heartbeatInitialDelay: Duration = Duration.ZERO
+    var immediateGossip = false
+
     private fun getDirectPeers() = peers.filter(::isDirect)
     private fun isDirect(peer: PeerHandler) = score.peerParams.isDirect(peer.peerId)
     private fun isConnected(peerId: PeerId) = peers.any { it.peerId == peerId }
