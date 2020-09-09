@@ -9,6 +9,7 @@ interface StatsFactory {
             override fun addValue(value: Double) {}
             override fun reset() {}
             override fun plus(other: Stats) = TODO()
+            override fun toString() = "<dummy>"
         }
 
         var DEFAULT: StatsFactory = object : StatsFactory {

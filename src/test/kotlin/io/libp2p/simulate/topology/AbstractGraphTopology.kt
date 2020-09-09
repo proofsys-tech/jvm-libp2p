@@ -13,7 +13,9 @@ abstract class AbstractGraphTopology : Topology {
     override fun connect(peers: List<SimPeer>): Network {
         val graph = buildGraph(peers)
         val conns = peers
-            .flatMap { graph.incomingEdgesOf(it) }
+            .flatMap {
+                graph.incomingEdgesOf(it).filter { graph.getEdgeSource(it) != graph.getEdgeTarget(it) }
+            }
             .distinct()
             .map { graph.getEdgeSource(it).connect(graph.getEdgeTarget(it)) }
             .map { it.get() }

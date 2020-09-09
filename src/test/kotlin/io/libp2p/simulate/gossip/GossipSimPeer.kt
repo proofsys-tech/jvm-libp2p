@@ -9,6 +9,7 @@ import io.libp2p.core.pubsub.ValidationResult
 import io.libp2p.core.pubsub.Validator
 import io.libp2p.core.pubsub.createPubsubApi
 import io.libp2p.etc.types.lazyVar
+import io.libp2p.pubsub.PubsubProtocol
 import io.libp2p.pubsub.PubsubRouterDebug
 import io.libp2p.pubsub.flood.FloodRouter
 import io.libp2p.simulate.stream.StreamSimPeer
@@ -20,7 +21,8 @@ import pubsub.pb.Rpc
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
-class GossipSimPeer(val topic: Topic) : StreamSimPeer<Unit>(true) {
+class GossipSimPeer(val topic: Topic, protocol: PubsubProtocol = PubsubProtocol.Gossip_V_1_1)
+    : StreamSimPeer<Unit>(true, protocol.announceStr) {
 
     var routerInstance: PubsubRouterDebug by lazyVar { FloodRouter() }
     var router by lazyVar {
@@ -63,6 +65,7 @@ class GossipSimPeer(val topic: Topic) : StreamSimPeer<Unit>(true) {
     }
 
     override fun handleStream(stream: Stream): CompletableFuture<out Unit> {
+        stream.getProtocol()
         router.addPeerWithDebugHandler(stream, pubsubLogs?.let {
             LoggingHandler(name, it)
         })

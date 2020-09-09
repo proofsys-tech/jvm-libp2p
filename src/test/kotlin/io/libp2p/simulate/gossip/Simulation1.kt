@@ -107,11 +107,11 @@ class Simulation1 {
     @Test
     fun testResultStabilityAgainstNetworkSize() {
         val cfgs = sequence {
-            for (totalPeers in arrayOf(1000, 5000, 10000, 20000, 30000))
+            for (totalPeers in arrayOf(1000/*, 5000, 10000, 20000, 30000*/))
                 yield(
                     SimConfig(
                         totalPeers = totalPeers,
-                        badPeers = (0.9 * totalPeers).toInt(),
+                        badPeers = (0.1 * totalPeers).toInt(),
                         topology = RandomNPeers(20),
 
                         gossipD = 6,
@@ -122,7 +122,7 @@ class Simulation1 {
                 )
         }
         val opt = SimOptions(
-            generatedNetworksCount = 10,
+            generatedNetworksCount = 1,
             sentMessageCount = 3,
             startRandomSeed = 2
         )
