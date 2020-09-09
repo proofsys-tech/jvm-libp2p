@@ -12,6 +12,7 @@ import io.netty.channel.embedded.EmbeddedChannel
 import org.apache.logging.log4j.LogManager
 import java.net.InetSocketAddress
 import java.net.SocketAddress
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong

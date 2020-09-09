@@ -13,7 +13,7 @@ class HostSimConnection(
     override val closed = conn.closeFuture()
 
     override fun close() {
-        conn.nettyChannel.close()
+        conn.close()
     }
 
     override val dialerStat: ConnectionStat

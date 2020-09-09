@@ -5,6 +5,7 @@ import io.libp2p.core.pubsub.MessageApi
 import io.libp2p.core.pubsub.PubsubSubscription
 import io.libp2p.core.pubsub.RESULT_VALID
 import io.libp2p.core.pubsub.Topic
+import io.libp2p.core.pubsub.ValidationResult
 import io.libp2p.core.pubsub.Validator
 import io.libp2p.core.pubsub.createPubsubApi
 import io.libp2p.etc.types.lazyVar
@@ -39,7 +40,7 @@ class GossipSimPeer(val topic: Topic) : StreamSimPeer<Unit>(true) {
 
     fun onNewMsg(msg: MessageApi) {
         lastMsg = msg
-        lastMsgTime = router.curTime()
+        lastMsgTime = router.curTimeMillis()
     }
 
     override fun start(): CompletableFuture<Unit> {
@@ -48,7 +49,7 @@ class GossipSimPeer(val topic: Topic) : StreamSimPeer<Unit>(true) {
             if (validationDelay.toMillis() == 0L) {
                 validationResult
             } else {
-                val ret = CompletableFuture<Boolean>()
+                val ret = CompletableFuture<ValidationResult>()
                 simExecutor.schedule({ ret.complete(validationResult.get()) }, validationDelay.toMillis(), TimeUnit.MILLISECONDS)
                 ret
             }

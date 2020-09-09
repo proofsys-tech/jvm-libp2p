@@ -113,7 +113,7 @@ open class Builder {
     /**
      * Constructs the Host with the provided parameters.
      */
-    fun build(def: Defaults): Host {
+    fun build(def: Defaults = Defaults.None): Host {
         if (def == Defaults.None) {
             if (identity.factory == null) throw IllegalStateException("No identity builder")
 

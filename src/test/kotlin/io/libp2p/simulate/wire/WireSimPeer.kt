@@ -23,7 +23,7 @@ class WireSimPeer(val host: Host) : AbstractSimPeer() {
             .thenApply { WireSimConnection(this, other, it) }
     }
 
-    override fun stop() = host.stop()
+    override fun stop() = host.stop().thenApply {  }
 
     fun getMultiaddr() = Multiaddr("/ip/127.0.0.1/tcp/$port")
 

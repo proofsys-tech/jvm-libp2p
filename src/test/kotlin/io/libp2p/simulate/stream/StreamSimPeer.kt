@@ -1,15 +1,11 @@
 package io.libp2p.simulate.stream
 
-import io.libp2p.core.Connection
 import io.libp2p.core.PeerId
-import io.libp2p.core.Stream
 import io.libp2p.core.StreamHandler
 import io.libp2p.core.crypto.KEY_TYPE
 import io.libp2p.core.crypto.generateKeyPair
 import io.libp2p.core.security.SecureChannel
 import io.libp2p.etc.CONNECTION
-import io.libp2p.etc.IS_INITIATOR
-import io.libp2p.etc.SECURE_SESSION
 import io.libp2p.etc.types.forward
 import io.libp2p.etc.types.lazyVar
 import io.libp2p.etc.util.netty.nettyInitializer
@@ -19,6 +15,9 @@ import io.libp2p.simulate.SimPeer
 import io.libp2p.simulate.util.GeneralSizeEstimator
 import io.libp2p.simulate.util.MessageDelayer
 import io.libp2p.tools.DummyChannel
+import io.libp2p.tools.NullTransport
+import io.libp2p.tools.TestStream
+import io.libp2p.transport.implementation.ConnectionOverNetty
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.logging.LoggingHandler
 import java.util.concurrent.CompletableFuture
@@ -74,25 +73,38 @@ abstract class StreamSimPeer<TProtocolController>(
         initiator: Boolean
     ): StreamSimChannel {
 
-        val parentChannel = DummyChannel().also {
-            it.attr(SECURE_SESSION).set(
-                SecureChannel.Session(
-                    PeerId.fromPubKey(keyPair.second),
-                    PeerId.fromPubKey(remote.keyPair.second),
-                    remote.keyPair.second
-                )
+//        val connectionChannel = DummyChannel().also {
+//            it.attr(SECURE_SESSION).set(
+//                SecureChannel.Session(
+//                    PeerId.fromPubKey(keyPair.second),
+//                    PeerId.fromPubKey(remote.keyPair.second),
+//                    remote.keyPair.second
+//                )
+//            )
+//            it.attr(IS_INITIATOR).set(initiator)
+//        }
+
+        val connection = ConnectionOverNetty(
+            DummyChannel(),
+            NullTransport(),
+            initiator
+        )
+
+        connection.setSecureSession(
+            SecureChannel.Session(
+                PeerId.fromPubKey(keyPair.second),
+                PeerId.fromPubKey(remote.keyPair.second),
+                remote.keyPair.second
             )
-            it.attr(IS_INITIATOR).set(initiator)
-        }
+        )
 
         return StreamSimChannel(
             channelName,
-            nettyInitializer { ch ->
-                ch.attr(IS_INITIATOR).set(initiator)
+            nettyInitializer {
+                val ch = it.channel
                 wireLogs?.also { ch.pipeline().addFirst(LoggingHandler(channelName, it)) }
-                val connection = Connection(parentChannel)
                 ch.attr(CONNECTION).set(connection)
-                val stream = Stream(ch, connection)
+                val stream = TestStream(ch, initiator)
                 handleStream(stream).forward(protocolController)
             }
         ).also {

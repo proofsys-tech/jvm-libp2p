@@ -89,8 +89,6 @@ interface PubsubRouter : PubsubMessageRouter, PubsubPeerRouter
  */
 interface PubsubRouterDebug : PubsubRouter {
 
-    val name: String
-
     /**
      * Adds ability to substitute the scheduler which is used for all async and periodic
      * tasks within the router

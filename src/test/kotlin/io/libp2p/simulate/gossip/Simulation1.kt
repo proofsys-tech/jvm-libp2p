@@ -3,6 +3,7 @@ package io.libp2p.simulate.gossip
 import io.libp2p.core.pubsub.RESULT_INVALID
 import io.libp2p.core.pubsub.Topic
 import io.libp2p.etc.types.toByteBuf
+import io.libp2p.pubsub.gossip.GossipParams
 import io.libp2p.pubsub.gossip.GossipRouter
 import io.libp2p.simulate.NetworkStats
 import io.libp2p.simulate.RandomDistribution
@@ -47,7 +48,6 @@ class Simulation1 {
         val gossipDLow: Int = 3,
         val gossipDHigh: Int = 12,
         val gossipDLazy: Int = 6,
-        val gossipImmediateGossip: Boolean = false,
         val gossipAdvertise: Int = 3,
         val gossipHistory: Int = 5,
         val gossipHeartbeat: Duration = 1.seconds,
@@ -285,6 +285,7 @@ class Simulation1 {
         sim(cfgs, opt)
     }
 
+/*
     @Disabled
     @Test
     fun testImmediateGossip() {
@@ -303,7 +304,6 @@ class Simulation1 {
                         gossipDHigh = 7,
                         gossipDLazy = gossipDLazy,
                         gossipAdvertise = 1,
-                        gossipImmediateGossip = immediateGossip,
                         gossipHeartbeatAddDelay = RandomDistribution.uniform(0.0, 1000.0),
                         gossipHistory = 100, // increase history to serve low latency IWANT requests
 
@@ -322,6 +322,7 @@ class Simulation1 {
 
         sim(cfgs, opt)
     }
+*/
 
     fun sim(cfg: Sequence<SimConfig>, opt: SimOptions): List<SimDetailedResult> {
         val executorService = Executors.newFixedThreadPool(opt.parallelIterationsCount)
@@ -380,22 +381,23 @@ class Simulation1 {
 
             val peers = (0 until cfg.totalPeers).map {
                 GossipSimPeer(Topic).apply {
-                    routerInstance = GossipRouter().apply {
-                        withDConstants(cfg.gossipD, cfg.gossipDLow, cfg.gossipDHigh, cfg.gossipDLazy)
-                        immediateGossip = cfg.gossipImmediateGossip
-                        gossipSize = cfg.gossipAdvertise
-                        gossipHistoryLength = cfg.gossipHistory
+                    val gossipParams = GossipParams(
+                        D = cfg.gossipD,
+                        DLow = cfg.gossipDLow,
+                        DHigh = cfg.gossipDHigh,
+                        DLazy = cfg.gossipDLazy,
+                        gossipSize = cfg.gossipAdvertise,
+                        gossipHistoryLength = cfg.gossipHistory,
                         heartbeatInterval = cfg.gossipHeartbeat
+                    )
+                    routerInstance = GossipRouter(gossipParams).apply {
                         heartbeatInitialDelay = gossipHeartbeatAddDelay.next().toInt().millis
                         serialize = false
                         val timeShift = peerTimeShift.next().toLong()
-                        curTime = { timeController.time + timeShift }
+                        curTimeMillis = { timeController.time + timeShift }
                         random = commonRnd
                     }
-//                if (name == "7") {
-//                    pubsubLogs = LogLevel.ERROR
-//                    wireLogs = LogLevel.ERROR
-//                }
+
                     val delegateExecutor = peerExecutors[it % peerExecutors.size]
                     simExecutor = ControlledExecutorServiceImpl(delegateExecutor, timeController)
                     msgSizeEstimator = GossipSimPeer.rawPubSubMsgSizeEstimator(cfg.avrgMessageSize, opt.measureTCPFramesOverhead)

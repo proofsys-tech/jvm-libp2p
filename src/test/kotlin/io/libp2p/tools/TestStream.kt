@@ -34,7 +34,7 @@ class TestStreamChannel<TController>(
         }
     )
 
-private class TestStream(ch: Channel, initiator: Boolean) : P2PChannelOverNetty(ch, initiator), Stream {
+class TestStream(ch: Channel, initiator: Boolean) : P2PChannelOverNetty(ch, initiator), Stream {
     init {
         nettyChannel.attr(PROTOCOL).set(CompletableFuture())
     }

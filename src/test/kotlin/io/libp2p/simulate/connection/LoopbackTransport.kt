@@ -4,12 +4,9 @@ import io.libp2p.core.Connection
 import io.libp2p.core.ConnectionHandler
 import io.libp2p.core.multiformats.Multiaddr
 import io.libp2p.core.multiformats.Protocol
-import io.libp2p.etc.types.completedExceptionally
 import io.libp2p.etc.types.lazyVar
-import io.libp2p.simulate.stream.StreamSimChannel
-import io.libp2p.transport.AbstractTransport
 import io.libp2p.transport.ConnectionUpgrader
-import java.net.ConnectException
+import io.libp2p.transport.tcp.TcpTransport
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -19,7 +16,7 @@ class LoopbackTransport(
     val net: LoopbackNetwork,
     val simExecutor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
     val localIp: String = "127.0.0.1"
-) : AbstractTransport(upgrader) {
+) : TcpTransport(upgrader) {
     val listeners = mutableMapOf<Int, ConnectionHandler>()
     val portManager = PortManager()
 
@@ -43,44 +40,38 @@ class LoopbackTransport(
         return CompletableFuture.completedFuture(Unit)
     }
 
-    override fun dial(addr: Multiaddr, connHandler: ConnectionHandler): CompletableFuture<Connection> {
-        val remoteIp = addr.getStringComponent(Protocol.IP4) ?: throw IllegalArgumentException("No IP4 component in dial addr: $addr")
-        val remotePort = addr.getStringComponent(Protocol.TCP)?.toInt() ?: throw IllegalArgumentException("No TCP component in dial addr: $addr")
-        val remoteTransport = net.ipTransportMap[remoteIp] ?: return completedExceptionally(ConnectException("No peers listening on IP $remoteIp"))
-        val remoteHandler = remoteTransport.listeners[remotePort] ?: return completedExceptionally(ConnectException("Remote peer $remoteIp not listening on port $remotePort"))
-
-        val localPort = portManager.acquire()
-
-        val (localChannelHandler, connFut) =
-            createConnectionHandler(connHandler, true)
-        val (remoteChannelHandler, _) =
-            remoteTransport.createConnectionHandler(remoteHandler, false)
-
-        val localSimChannel = StreamSimChannel(
-            "L:$localIp:$localPort=>R:$remoteIp:$remotePort",
-            localChannelHandler
-        ).also {
-            it.executor = simExecutor
-        }
-        val remoteSimChannel = StreamSimChannel(
-            "L:$remoteIp:$remotePort<=R:$localIp:$localPort",
-            remoteChannelHandler
-        ).also {
-            it.executor = simExecutor
-        }
-
-        val simConnection = StreamSimChannel.interConnect(localSimChannel, remoteSimChannel)
-        // TODO add simConnection to network
-        return connFut
-    }
-
-    override fun remoteAddress(connection: Connection): Multiaddr {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun localAddress(connection: Connection): Multiaddr {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun dial(addr: Multiaddr, connHandler: ConnectionHandler): CompletableFuture<Connection> = TODO()
+//    {
+//        val remoteIp = addr.getStringComponent(Protocol.IP4) ?: throw IllegalArgumentException("No IP4 component in dial addr: $addr")
+//        val remotePort = addr.getStringComponent(Protocol.TCP)?.toInt() ?: throw IllegalArgumentException("No TCP component in dial addr: $addr")
+//        val remoteTransport = net.ipTransportMap[remoteIp] ?: return completedExceptionally(ConnectException("No peers listening on IP $remoteIp"))
+//        val remoteHandler = remoteTransport.listeners[remotePort] ?: return completedExceptionally(ConnectException("Remote peer $remoteIp not listening on port $remotePort"))
+//
+//        val localPort = portManager.acquire()
+//
+//        // TODO left from migration from version 0.1 to 0.5
+//        val (localChannelHandler, connFut) =
+//            createConnectionHandler(connHandler, true)
+//        val (remoteChannelHandler, _) =
+//            remoteTransport.createConnectionHandler(remoteHandler, false)
+//
+//        val localSimChannel = StreamSimChannel(
+//            "L:$localIp:$localPort=>R:$remoteIp:$remotePort",
+//            localChannelHandler
+//        ).also {
+//            it.executor = simExecutor
+//        }
+//        val remoteSimChannel = StreamSimChannel(
+//            "L:$remoteIp:$remotePort<=R:$localIp:$localPort",
+//            remoteChannelHandler
+//        ).also {
+//            it.executor = simExecutor
+//        }
+//
+//        val simConnection = StreamSimChannel.interConnect(localSimChannel, remoteSimChannel)
+//        // TODO add simConnection to network
+//        return connFut
+//    }
 }
 
 class PortManager(var startDialPort: Int = 20000) {

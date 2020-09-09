@@ -77,20 +77,20 @@ class SimHostTest {
         serverHost.start().get(1, TimeUnit.SECONDS)
 
         val ping = clientHost.host.newStream<PingController>(
-            "/ipfs/ping/1.0.0",
+            listOf("/ipfs/ping/1.0.0"),
             serverHost.host.peerId,
             Multiaddr("/ip4/${serverHost.ip}/tcp/40002")
         )
         val pingStream = ping.stream.get(5, TimeUnit.SECONDS)
         println("Ping stream created")
-        val pingCtr = ping.controler.get(10, TimeUnit.SECONDS)
+        val pingCtr = ping.controller.get(10, TimeUnit.SECONDS)
         println("Ping controller created")
 
         for (i in 1..10) {
             val latency = pingCtr.ping().get(1, TimeUnit.SECONDS)
             println("Ping $i is ${latency}ms")
         }
-        pingStream.nettyChannel.close().await(5, TimeUnit.SECONDS)
+        pingStream.close().get(5, TimeUnit.SECONDS)
         println("Ping stream closed")
 
         // stream is closed, the call should fail correctly

@@ -8,6 +8,7 @@ import io.libp2p.etc.types.anyComplete
 import io.libp2p.etc.types.copy
 import io.libp2p.etc.types.createLRUMap
 import io.libp2p.etc.types.median
+import io.libp2p.etc.types.millis
 import io.libp2p.etc.types.seconds
 import io.libp2p.etc.types.toProtobuf
 import io.libp2p.etc.types.whenTrue
@@ -81,8 +82,7 @@ open class GossipRouter @JvmOverloads constructor(
         return curTimeMillis() < expire - (params.pruneBackoff + params.graftFloodThreshold).toMillis()
     }
 
-    var heartbeatInitialDelay: Duration = Duration.ZERO
-    var immediateGossip = false
+    var heartbeatInitialDelay = 0.millis
 
     private fun getDirectPeers() = peers.filter(::isDirect)
     private fun isDirect(peer: PeerHandler) = score.peerParams.isDirect(peer.peerId)

@@ -15,6 +15,6 @@ class HostSimPeer(val host: Host) : AbstractSimPeer() {
     val transport by lazy { (host.network.transports[0] as LoopbackTransport) }
     val ip  by lazy { transport.localIp }
 
-    override fun start() = host.start()
-    override fun stop() = host.stop()
+    override fun start() = host.start().thenApply {  }
+    override fun stop() = host.stop().thenApply {  }
 }
