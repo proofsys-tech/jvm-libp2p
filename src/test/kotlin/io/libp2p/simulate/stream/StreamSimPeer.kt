@@ -46,6 +46,7 @@ abstract class StreamSimPeer<TProtocolController>(
     abstract val random: Random
 
     var simExecutor: ScheduledExecutorService by lazyVar { Executors.newSingleThreadScheduledExecutor() }
+    var currentTime: () -> Long = System::currentTimeMillis
     var keyPair by lazyVar { generateKeyPair(KEY_TYPE.ECDSA,
         random = SecureRandom(ByteArray(4).also { random.nextBytes(it) }))}
     override val peerId by lazy { PeerId.fromPubKey(keyPair.second) }
@@ -120,6 +121,7 @@ abstract class StreamSimPeer<TProtocolController>(
             }
         ).also {
             it.executor = simExecutor
+            it.currentTime = currentTime
             it.msgSizeEstimator = msgSizeEstimator
             it.msgDelayer = msgDelayer
         }

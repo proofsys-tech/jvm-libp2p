@@ -8,8 +8,8 @@ import java.util.Random
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-class SimNetwork(
-    val cfg: SimConfig,
+class GossipSimNetwork(
+    val cfg: GossipSimConfig,
     val routerFactory: (Int) -> GossipRouter,
     val simPeerModifier: (Int, GossipSimPeer) -> Unit = { a, b -> }
 ) {
@@ -30,6 +30,7 @@ class SimNetwork(
 
             val delegateExecutor = peerExecutors[number % peerExecutors.size]
             simExecutor = ControlledExecutorServiceImpl(delegateExecutor, timeController)
+            currentTime = { timeController.time }
             msgSizeEstimator =
                 GossipSimPeer.rawPubSubMsgSizeEstimator(cfg.avrgMessageSize, cfg.measureTCPFramesOverhead)
             val latencyRandomValue = cfg.latency.newValue(commonRnd)

@@ -7,7 +7,6 @@ import io.libp2p.simulate.gossip.GossipSimPeer
 import io.libp2p.tools.schedulers.ControlledExecutorServiceImpl
 import io.libp2p.tools.schedulers.TimeControllerImpl
 import io.libp2p.tools.transpose
-import io.netty.handler.logging.LogLevel
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.Random
@@ -22,8 +21,9 @@ class GossipSimTest {
         val createPeer = {
             val peer = GossipSimPeer(Topic("aaa"), "1", Random())
             peer.routerInstance = GossipRouter().also { it.serialize = true }
-            peer.pubsubLogs = LogLevel.ERROR
+            peer.pubsubLogs = { true }
             peer.simExecutor = ControlledExecutorServiceImpl(timeController)
+            peer.currentTime = { timeController.time }
             peer
         }
 

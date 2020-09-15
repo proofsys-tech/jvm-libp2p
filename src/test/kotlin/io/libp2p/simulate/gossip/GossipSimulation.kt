@@ -19,9 +19,9 @@ data class SimMessageDelivery(
     val receivedTime: Long
 )
 
-class Simulation(
-    val cfg: SimConfig,
-    val network: SimNetwork
+class GossipSimulation(
+    val cfg: GossipSimConfig,
+    val network: GossipSimNetwork
 ) {
 
     private val idCounter = AtomicLong(1)

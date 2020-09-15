@@ -8,7 +8,7 @@ import io.libp2p.tools.millis
 import io.libp2p.tools.seconds
 import java.time.Duration
 
-data class SimConfig(
+data class GossipSimConfig(
     val totalPeers: Int = 10000,
     val badPeers: Int = 0,
 

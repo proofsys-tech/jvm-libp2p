@@ -1,5 +1,6 @@
 package io.libp2p.simulate.gossip
 
+import io.libp2p.core.PeerId
 import io.libp2p.core.Stream
 import io.libp2p.core.pubsub.MessageApi
 import io.libp2p.core.pubsub.PubsubSubscription
@@ -41,7 +42,7 @@ class GossipSimPeer(
 
     val api by lazy { createPubsubApi(router) }
     val apiPublisher by lazy { api.createPublisher(keyPair.first, 0L) }
-    var pubsubLogs: LogLevel? = null
+    var pubsubLogs : (PeerId) -> Boolean = { false }
 
     var validationDelay = 0.millis
     var validationResult = RESULT_VALID
@@ -79,9 +80,9 @@ class GossipSimPeer(
 
     override fun handleStream(stream: Stream): CompletableFuture<out Unit> {
         stream.getProtocol()
-        router.addPeerWithDebugHandler(stream, pubsubLogs?.let {
-            LoggingHandler(name, it)
-        })
+        val logConnection = pubsubLogs(stream.remotePeerId())
+        router.addPeerWithDebugHandler(stream, if (logConnection)
+            LoggingHandler(name, LogLevel.ERROR) else null)
         return dummy
     }
 
