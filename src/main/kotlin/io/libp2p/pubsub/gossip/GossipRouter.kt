@@ -53,6 +53,10 @@ open class GossipRouter @JvmOverloads constructor(
     val fanout: MutableMap<Topic, MutableSet<PeerHandler>> = linkedMapOf()
     val mesh: MutableMap<Topic, MutableSet<PeerHandler>> = linkedMapOf()
 
+    // duration to delay the first heartbeat
+    // primarily for tests and simulation to disperse heartbeats of routers
+    var heartbeatInitialDelay = 0.millis
+
     private val mCache = MCache(params.gossipSize, params.gossipHistoryLength)
     private val lastPublished = linkedMapOf<Topic, Long>()
     private var heartbeatsCount = 0
@@ -63,7 +67,7 @@ open class GossipRouter @JvmOverloads constructor(
     private val heartbeatTask by lazy {
         executor.scheduleWithFixedDelay(
             ::catchingHeartbeat,
-            params.heartbeatInterval.toMillis(),
+            (params.heartbeatInterval + heartbeatInitialDelay).toMillis(),
             params.heartbeatInterval.toMillis(),
             TimeUnit.MILLISECONDS
         )
@@ -81,8 +85,6 @@ open class GossipRouter @JvmOverloads constructor(
         val expire = backoffExpireTimes[peer.peerId to topic] ?: return false
         return curTimeMillis() < expire - (params.pruneBackoff + params.graftFloodThreshold).toMillis()
     }
-
-    var heartbeatInitialDelay = 0.millis
 
     private fun getDirectPeers() = peers.filter(::isDirect)
     private fun isDirect(peer: PeerHandler) = score.peerParams.isDirect(peer.peerId)

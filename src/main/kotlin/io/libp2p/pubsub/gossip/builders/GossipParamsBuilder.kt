@@ -9,7 +9,7 @@ import io.libp2p.pubsub.gossip.defaultDOut
 import io.libp2p.pubsub.gossip.defaultDScore
 import java.time.Duration
 
-class GossipParamsBuilder {
+class GossipParamsBuilder(defaultParams: GossipParams = GossipParams()) {
     private var D: Int? = null
 
     private var DLow: Int? = null
@@ -55,24 +55,23 @@ class GossipParamsBuilder {
     private var connectCallback: Function2<PeerId, ByteArray, Unit>? = null
 
     init {
-        val source = GossipParams()
-        this.D = source.D
-        this.fanoutTTL = source.fanoutTTL
-        this.gossipSize = source.gossipSize
-        this.gossipHistoryLength = source.gossipHistoryLength
-        this.heartbeatInterval = source.heartbeatInterval
-        this.maxPrunePeers = source.maxPrunePeers
-        this.pruneBackoff = source.pruneBackoff
-        this.floodPublish = source.floodPublish
-        this.gossipFactor = source.gossipFactor
-        this.opportunisticGraftPeers = source.opportunisticGraftPeers
-        this.opportunisticGraftTicks = source.opportunisticGraftTicks
-        this.graftFloodThreshold = source.graftFloodThreshold
-        this.maxIHaveLength = source.maxIHaveLength
-        this.maxIHaveMessages = source.maxIHaveMessages
-        this.iWantFollowupTime = source.iWantFollowupTime
-        this.gossipRetransmission = source.gossipRetransmission
-        this.connectCallback = source.connectCallback
+        this.D = defaultParams.D
+        this.fanoutTTL = defaultParams.fanoutTTL
+        this.gossipSize = defaultParams.gossipSize
+        this.gossipHistoryLength = defaultParams.gossipHistoryLength
+        this.heartbeatInterval = defaultParams.heartbeatInterval
+        this.maxPrunePeers = defaultParams.maxPrunePeers
+        this.pruneBackoff = defaultParams.pruneBackoff
+        this.floodPublish = defaultParams.floodPublish
+        this.gossipFactor = defaultParams.gossipFactor
+        this.opportunisticGraftPeers = defaultParams.opportunisticGraftPeers
+        this.opportunisticGraftTicks = defaultParams.opportunisticGraftTicks
+        this.graftFloodThreshold = defaultParams.graftFloodThreshold
+        this.maxIHaveLength = defaultParams.maxIHaveLength
+        this.maxIHaveMessages = defaultParams.maxIHaveMessages
+        this.iWantFollowupTime = defaultParams.iWantFollowupTime
+        this.gossipRetransmission = defaultParams.gossipRetransmission
+        this.connectCallback = defaultParams.connectCallback
     }
 
     fun D(value: Int): GossipParamsBuilder = apply { D = value }

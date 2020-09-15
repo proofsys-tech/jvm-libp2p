@@ -1,5 +1,6 @@
 package io.libp2p.simulate
 
+import io.libp2p.core.PeerId
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
@@ -7,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger
 interface SimPeer {
 
     val name: String
+    val peerId: PeerId
     val connections: List<SimConnection>
 
     fun start() = CompletableFuture.completedFuture(Unit)
@@ -16,6 +18,9 @@ interface SimPeer {
     fun setThroughput(througput: RandomValue)
 
     fun stop(): CompletableFuture<Unit> = CompletableFuture.completedFuture(Unit)
+
+    fun getConnectedPeers() =
+        connections.flatMap { listOf(it.dialer, it.listener) }.distinct() - this
 }
 
 abstract class AbstractSimPeer : SimPeer {

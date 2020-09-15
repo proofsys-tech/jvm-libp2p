@@ -19,7 +19,7 @@ class GossipSimTest {
         val timeController = TimeControllerImpl()
 
         val createPeer = {
-            val peer = GossipSimPeer(Topic("aaa"))
+            val peer = GossipSimPeer(Topic("aaa"), "1")
             peer.routerInstance = GossipRouter().also { it.serialize = true }
             peer.pubsubLogs = LogLevel.ERROR
             peer.simExecutor = ControlledExecutorServiceImpl(timeController)

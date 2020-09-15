@@ -43,6 +43,8 @@ abstract class StreamSimPeer<TProtocolController>(
 
     var simExecutor: ScheduledExecutorService by lazyVar { Executors.newSingleThreadScheduledExecutor() }
     var keyPair = generateKeyPair(KEY_TYPE.ECDSA)
+    override val peerId = PeerId.fromPubKey(keyPair.second)
+
     var msgSizeEstimator = GeneralSizeEstimator
     var msgDelayer: MessageDelayer = { 0L }
     var wireLogs: LogLevel? = null

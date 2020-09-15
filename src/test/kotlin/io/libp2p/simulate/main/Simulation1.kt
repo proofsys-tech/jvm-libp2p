@@ -1,4 +1,4 @@
-package io.libp2p.simulate.gossip
+package io.libp2p.simulate.main
 
 import io.libp2p.core.pubsub.RESULT_INVALID
 import io.libp2p.core.pubsub.Topic
@@ -8,6 +8,7 @@ import io.libp2p.pubsub.gossip.GossipRouter
 import io.libp2p.simulate.NetworkStats
 import io.libp2p.simulate.RandomDistribution
 import io.libp2p.simulate.Topology
+import io.libp2p.simulate.gossip.GossipSimPeer
 import io.libp2p.simulate.stats.StatsFactory
 import io.libp2p.simulate.stats.WritableStats
 import io.libp2p.simulate.topology.RandomNPeers
@@ -380,7 +381,7 @@ class Simulation1 {
                     listOf(Executor { it.run() })
 
             val peers = (0 until cfg.totalPeers).map {
-                GossipSimPeer(Topic).apply {
+                GossipSimPeer(Topic, it.toString()).apply {
                     val gossipParams = GossipParams(
                         D = cfg.gossipD,
                         DLow = cfg.gossipDLow,
@@ -400,7 +401,8 @@ class Simulation1 {
 
                     val delegateExecutor = peerExecutors[it % peerExecutors.size]
                     simExecutor = ControlledExecutorServiceImpl(delegateExecutor, timeController)
-                    msgSizeEstimator = GossipSimPeer.rawPubSubMsgSizeEstimator(cfg.avrgMessageSize, opt.measureTCPFramesOverhead)
+                    msgSizeEstimator =
+                        GossipSimPeer.rawPubSubMsgSizeEstimator(cfg.avrgMessageSize, opt.measureTCPFramesOverhead)
                     val latencyRandomValue = cfg.latency.newValue(commonRnd)
                     msgDelayer = { latencyRandomValue.next().toLong() }
                     validationDelay = cfg.gossipValidationDelay
@@ -475,7 +477,7 @@ class Simulation1 {
     }
 
     private fun clearGossipStats(peers: List<GossipSimPeer>) {
-        peers.forEach { it.lastMsg = null }
+        peers.forEach { it.allMessages.clear() }
     }
 
     private fun calcGossipStats(peers: List<GossipSimPeer>, msgSentTime: Long): GossipStats {

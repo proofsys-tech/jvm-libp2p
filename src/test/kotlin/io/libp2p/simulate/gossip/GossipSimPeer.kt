@@ -21,15 +21,21 @@ import pubsub.pb.Rpc
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
-class GossipSimPeer(val topic: Topic, protocol: PubsubProtocol = PubsubProtocol.Gossip_V_1_1)
-    : StreamSimPeer<Unit>(true, protocol.announceStr) {
+class GossipSimPeer(
+    val topic: Topic,
+    override val name: String,
+    protocol: PubsubProtocol = PubsubProtocol.Gossip_V_1_1
+) : StreamSimPeer<Unit>(true, protocol.announceStr) {
 
     var routerInstance: PubsubRouterDebug by lazyVar { FloodRouter() }
     var router by lazyVar {
         routerInstance.also {
+            it.name = name
             it.executor = simExecutor
+            it.curTimeMillis
         }
     }
+
     val api by lazy { createPubsubApi(router) }
     val apiPublisher by lazy { api.createPublisher(keyPair.first, 0L) }
     var pubsubLogs: LogLevel? = null
@@ -37,12 +43,16 @@ class GossipSimPeer(val topic: Topic, protocol: PubsubProtocol = PubsubProtocol.
     var validationDelay = 0.millis
     var validationResult = RESULT_VALID
     var subscription: PubsubSubscription? = null
-    var lastMsg: MessageApi? = null
-    var lastMsgTime = 0L
+
+    val allMessages = mutableListOf<Pair<MessageApi, Long>>()
+
+    val lastMsg: MessageApi?
+        get() = allMessages.lastOrNull()?.first
+    val lastMsgTime
+        get() = allMessages.last().second
 
     fun onNewMsg(msg: MessageApi) {
-        lastMsg = msg
-        lastMsgTime = router.curTimeMillis()
+        allMessages += msg to router.curTimeMillis()
     }
 
     override fun start(): CompletableFuture<Unit> {

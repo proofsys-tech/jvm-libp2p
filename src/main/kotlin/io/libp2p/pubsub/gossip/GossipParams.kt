@@ -360,6 +360,9 @@ class GossipTopicsScoreParams(
     private val topicParams: Map<Topic, GossipTopicScoreParams> = mapOf()
 ) {
     operator fun get(topic: Topic) = topicParams.getOrDefault(topic, defaultParams)
+
+    fun withTopic(topic: Topic, params: GossipTopicScoreParams) =
+        GossipTopicsScoreParams(defaultParams, topicParams + mapOf(topic to params))
 }
 
 /**

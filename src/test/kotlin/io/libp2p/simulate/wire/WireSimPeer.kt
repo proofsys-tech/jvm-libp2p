@@ -25,6 +25,8 @@ class WireSimPeer(val host: Host) : AbstractSimPeer() {
 
     override fun stop() = host.stop().thenApply {  }
 
+    override val peerId = host.peerId
+
     fun getMultiaddr() = Multiaddr("/ip/127.0.0.1/tcp/$port")
 
     companion object {

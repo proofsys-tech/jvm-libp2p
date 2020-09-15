@@ -1,0 +1,68 @@
+package io.libp2p.simulate.gossip
+
+import io.libp2p.pubsub.gossip.GossipRouter
+import io.libp2p.simulate.Network
+import io.libp2p.tools.schedulers.ControlledExecutorServiceImpl
+import io.libp2p.tools.schedulers.TimeControllerImpl
+import java.util.Random
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+
+class SimNetwork(
+    val cfg: SimConfig,
+    val routerFactory: (Int) -> GossipRouter,
+    val simPeerModifier: (Int, GossipSimPeer) -> Unit = { a, b -> }
+) {
+    val peers = sortedMapOf<Int, GossipSimPeer>()
+    lateinit var network: Network
+
+    open val timeController = TimeControllerImpl()
+    open val commonRnd = Random(cfg.startRandomSeed)
+    protected open val peerExecutors =
+        if (cfg.iterationThreadsCount > 1)
+            (0 until cfg.iterationThreadsCount).map { Executors.newSingleThreadScheduledExecutor() }
+        else
+            listOf(Executor { it.run() })
+
+    var simPeerFactory: (Int, GossipRouter) -> GossipSimPeer = { number, router ->
+        GossipSimPeer(cfg.topic, number.toString()).apply {
+            routerInstance = router
+
+            val delegateExecutor = peerExecutors[number % peerExecutors.size]
+            simExecutor = ControlledExecutorServiceImpl(delegateExecutor, timeController)
+            msgSizeEstimator =
+                GossipSimPeer.rawPubSubMsgSizeEstimator(cfg.avrgMessageSize, cfg.measureTCPFramesOverhead)
+            val latencyRandomValue = cfg.latency.newValue(commonRnd)
+            msgDelayer = { latencyRandomValue.next().toLong() }
+            validationDelay = cfg.gossipValidationDelay
+
+            start()
+        }
+    }
+
+    protected open fun createSimPeer(number: Int): GossipSimPeer {
+        val router = routerFactory(number).also {
+            it.serialize = false
+            it.curTimeMillis = { timeController.time }
+        }
+        val simPeer = simPeerFactory(number, router)
+        simPeerModifier(number, simPeer)
+        return simPeer
+    }
+
+    fun createAllPeers() {
+        peers += (0 until cfg.totalPeers).map {
+            it to createSimPeer(it)
+        }
+    }
+
+    fun connectAllPeers() {
+        cfg.topology.random = commonRnd
+        network = cfg.topology.connect(peers.values.toList())
+    }
+
+    fun getConnectedPeers(peerIndex: Int): Collection<GossipSimPeer> {
+        val peer = peers[peerIndex] ?: throw IllegalArgumentException("Invalid peer index $peerIndex")
+        return peer.getConnectedPeers().map { it as GossipSimPeer }
+    }
+}
