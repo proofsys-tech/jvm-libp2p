@@ -1,6 +1,5 @@
 package io.libp2p.simulate.gossip
 
-import io.libp2p.etc.types.millis
 import io.libp2p.etc.types.minutes
 import io.libp2p.etc.types.seconds
 import io.libp2p.etc.types.times
@@ -48,16 +47,16 @@ val Eth2DefaultBlockTopicParams = GossipTopicScoreParams(
     firstMessageDeliveriesWeight = 1.0,
     firstMessageDeliveriesDecay = 0.9928,
     firstMessageDeliveriesCap = 23.0,
-    meshMessageDeliveriesWeight = -0.020408,
+    meshMessageDeliveriesWeight = -0.724,
     meshMessageDeliveriesDecay = 0.9928,
-    meshMessageDeliveriesThreshold = 35.0,
+    meshMessageDeliveriesThreshold = 14.0,
     meshMessageDeliveriesCap = 139.0,
-    meshMessageDeliveriesActivation = EpochDuration * 8,
-    meshMessageDeliveryWindow = 200.millis,
-    meshFailurePenaltyWeight = -0.02048,
+    meshMessageDeliveriesActivation = EpochDuration * 4,
+    meshMessageDeliveryWindow = 2.seconds,
+    meshFailurePenaltyWeight = -0.724,
     meshFailurePenaltyDecay = 0.9928,
-    invalidMessageDeliveriesWeight = -99.0,
-    invalidMessageDeliveriesDecay = 0.9994
+    invalidMessageDeliveriesWeight = -142.0,
+    invalidMessageDeliveriesDecay = 0.9971
 )
 
 val Eth2DefaultAggrAttestTopicParams = GossipTopicScoreParams(
@@ -83,10 +82,12 @@ val Eth2DefaultPeerScoreParams = GossipPeerScoreParams(
     decayToZero = 0.1,
     retainScore = EpochDuration * 100,
     appSpecificWeight = 1.0,
-    ipColocationFactorWeight = -1.0,
+    ipColocationFactorWeight = -35.5,
     ipColocationFactorThreshold = 10,
-    behaviourPenaltyWeight = -99.0,
-    topicScoreCap = 32.72
+    behaviourPenaltyThreshold = 6.0,
+    behaviourPenaltyWeight = -15.92,
+    behaviourPenaltyDecay = 0.9857,
+    topicScoreCap = 35.5
 )
 
 val Eth2DefaultScoreParams = GossipScoreParams(
