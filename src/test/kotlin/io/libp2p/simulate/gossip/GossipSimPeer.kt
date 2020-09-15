@@ -18,12 +18,14 @@ import io.libp2p.tools.millis
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.logging.LoggingHandler
 import pubsub.pb.Rpc
+import java.util.Random
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
 class GossipSimPeer(
     val topic: Topic,
     override val name: String,
+    override val random: Random,
     protocol: PubsubProtocol = PubsubProtocol.Gossip_V_1_1
 ) : StreamSimPeer<Unit>(true, protocol.announceStr) {
 
@@ -33,6 +35,7 @@ class GossipSimPeer(
             it.name = name
             it.executor = simExecutor
             it.curTimeMillis
+            it.random = random
         }
     }
 

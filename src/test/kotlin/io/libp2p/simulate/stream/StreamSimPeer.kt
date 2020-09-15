@@ -22,6 +22,8 @@ import io.libp2p.tools.NullTransport
 import io.libp2p.transport.implementation.ConnectionOverNetty
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.logging.LoggingHandler
+import java.security.SecureRandom
+import java.util.Random
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -41,9 +43,12 @@ abstract class StreamSimPeer<TProtocolController>(
         Protocol.TCP to byteArrayOf(0 ,0, 0, 0xFF.toByte())
     ))
 
+    abstract val random: Random
+
     var simExecutor: ScheduledExecutorService by lazyVar { Executors.newSingleThreadScheduledExecutor() }
-    var keyPair = generateKeyPair(KEY_TYPE.ECDSA)
-    override val peerId = PeerId.fromPubKey(keyPair.second)
+    var keyPair by lazyVar { generateKeyPair(KEY_TYPE.ECDSA,
+        random = SecureRandom(ByteArray(4).also { random.nextBytes(it) }))}
+    override val peerId by lazy { PeerId.fromPubKey(keyPair.second) }
 
     var msgSizeEstimator = GeneralSizeEstimator
     var msgDelayer: MessageDelayer = { 0L }

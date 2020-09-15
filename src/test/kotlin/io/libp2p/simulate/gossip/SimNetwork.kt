@@ -25,7 +25,7 @@ class SimNetwork(
             listOf(Executor { it.run() })
 
     var simPeerFactory: (Int, GossipRouter) -> GossipSimPeer = { number, router ->
-        GossipSimPeer(cfg.topic, number.toString()).apply {
+        GossipSimPeer(cfg.topic, number.toString(), commonRnd).apply {
             routerInstance = router
 
             val delegateExecutor = peerExecutors[number % peerExecutors.size]
