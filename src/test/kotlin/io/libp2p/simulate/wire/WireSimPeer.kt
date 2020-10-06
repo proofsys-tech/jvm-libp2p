@@ -23,7 +23,7 @@ class WireSimPeer(val host: Host) : AbstractSimPeer() {
             .thenApply { WireSimConnection(this, other, it) }
     }
 
-    override fun stop() = host.stop().thenApply {  }
+    override fun stop() = host.stop().thenApply { }
 
     override val peerId = host.peerId
 

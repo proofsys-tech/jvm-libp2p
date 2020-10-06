@@ -42,7 +42,7 @@ class GossipSimPeer(
 
     val api by lazy { createPubsubApi(router) }
     val apiPublisher by lazy { api.createPublisher(keyPair.first, 0L) }
-    var pubsubLogs : (PeerId) -> Boolean = { false }
+    var pubsubLogs: (PeerId) -> Boolean = { false }
 
     var validationDelay = 0.millis
     var validationResult = RESULT_VALID

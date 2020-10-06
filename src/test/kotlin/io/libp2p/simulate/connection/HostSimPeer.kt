@@ -9,13 +9,13 @@ import java.util.concurrent.CompletableFuture
 class HostSimPeer(val host: Host) : AbstractSimPeer() {
 
     override fun connectImpl(other: SimPeer): CompletableFuture<SimConnection> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
     }
 
     val transport by lazy { (host.network.transports[0] as LoopbackTransport) }
-    val ip  by lazy { transport.localIp }
+    val ip by lazy { transport.localIp }
     override val peerId = host.peerId
 
-    override fun start() = host.start().thenApply {  }
-    override fun stop() = host.stop().thenApply {  }
+    override fun start() = host.start().thenApply { }
+    override fun stop() = host.stop().thenApply { }
 }

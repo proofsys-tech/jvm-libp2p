@@ -70,7 +70,6 @@ class SimHostTest {
                 afterSecureHandler.setLogger(LogLevel.ERROR)
                 muxFramesHandler.setLogger(LogLevel.ERROR)
             }
-
         }
 
         clientHost.start().get(1, TimeUnit.SECONDS)

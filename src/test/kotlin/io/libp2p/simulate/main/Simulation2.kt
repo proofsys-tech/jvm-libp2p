@@ -67,7 +67,7 @@ class Simulation2 {
 //                peer.pubsubLogs = { it == peer_90 }
 //            }
 //        }
-        val simPeerModifier = { num :Int, peer: GossipSimPeer -> }
+        val simPeerModifier = { num: Int, peer: GossipSimPeer -> }
 
         val simNetwork = GossipSimNetwork(simConfig, gossipRouterCtor, simPeerModifier)
         println("Creating peers...")
@@ -89,7 +89,7 @@ class Simulation2 {
                     "\t" + stats.getPercentile(5.0) +
                     "\t" + stats.mean + "" +
                     "\t" + stats.getPercentile(95.0) +
-                    "\t" + stats.max);
+                    "\t" + stats.max)
         }
         println("Wrapping up...")
         simulation.forwardTime(10.seconds)
@@ -128,7 +128,6 @@ class Simulation2 {
                     gossip.peers.map { gossip.score.score(it) }
                 }
         }
-
 
     @Test
     fun a() {

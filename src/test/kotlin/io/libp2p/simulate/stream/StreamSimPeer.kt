@@ -29,7 +29,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicLong
 
-private val counter = AtomicLong();
+private val counter = AtomicLong()
 
 abstract class StreamSimPeer<TProtocolController>(
     val isSemiDuplex: Boolean = false,
@@ -40,7 +40,7 @@ abstract class StreamSimPeer<TProtocolController>(
 
     var address = Multiaddr(listOf(
         Protocol.IP4 to counter.incrementAndGet().toBytesBigEndian(),
-        Protocol.TCP to byteArrayOf(0 ,0, 0, 0xFF.toByte())
+        Protocol.TCP to byteArrayOf(0, 0, 0, 0xFF.toByte())
     ))
 
     abstract val random: Random
@@ -48,7 +48,7 @@ abstract class StreamSimPeer<TProtocolController>(
     var simExecutor: ScheduledExecutorService by lazyVar { Executors.newSingleThreadScheduledExecutor() }
     var currentTime: () -> Long = System::currentTimeMillis
     var keyPair by lazyVar { generateKeyPair(KEY_TYPE.ECDSA,
-        random = SecureRandom(ByteArray(4).also { random.nextBytes(it) }))}
+        random = SecureRandom(ByteArray(4).also { random.nextBytes(it) })) }
     override val peerId by lazy { PeerId.fromPubKey(keyPair.second) }
 
     var msgSizeEstimator = GeneralSizeEstimator

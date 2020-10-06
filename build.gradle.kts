@@ -83,7 +83,7 @@ protobuf {
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions {
-        freeCompilerArgs = listOf("-XXLanguage:+InlineClasses", "-Xjvm-default=enable")
+        freeCompilerArgs = listOf("-Xjvm-default=enable")
     }
 }
 
